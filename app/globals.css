@@ -1,0 +1,51 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-inter: 'Inter', sans-serif;
+  --font-mono: 'Courier New', monospace;
+}
+
+@layer base {
+  * {
+    @apply border-gray-800;
+  }
+  
+  body {
+    @apply bg-black text-white;
+  }
+  
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+  
+  .section-title {
+    @apply text-primary-green text-sm md:text-base font-mono mb-3;
+  }
+  
+  .section-heading {
+    @apply text-2xl md:text-3xl lg:text-4xl font-bold font-mono mb-6;
+  }
+}
+
+/* Float animation for language pills */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+.animate-float {
+  animation: float ease-in-out infinite;
+}
+

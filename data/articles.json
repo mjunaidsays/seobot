@@ -1,0 +1,59 @@
+[
+  {
+    "id": 1,
+    "category": "Listicles",
+    "title": "Best CMS for SEO: Top 12 Platforms Compared",
+    "description": "Your CMS choice directly impacts your site's SEO performance. From URL structures to mobile optimization, the platform you use can either boost rankings or hold you back.",
+    "link": "#"
+  },
+  {
+    "id": 2,
+    "category": "Listicles",
+    "title": "10 Indie Maker Tips to Boost Product Visibility in 2024",
+    "description": "These strategies help you connect with users, build a following, improve your product, and increase online visibility.",
+    "link": "#"
+  },
+  {
+    "id": 3,
+    "category": "How-to Guides",
+    "title": "Robots.txt SEO Guide: 10 Best Practices",
+    "description": "Ever wonder how search engines know which parts of your site to crawl?",
+    "link": "#"
+  },
+  {
+    "id": 4,
+    "category": "Checklists",
+    "title": "Google Core Update Checklist: Prepare Your Site",
+    "description": "Google Core Updates can shake up your rankings and traffic. Here's what you need to know:",
+    "link": "#"
+  },
+  {
+    "id": 5,
+    "category": "QA Articles",
+    "title": "Next.js getServerSideProps: Usage, Examples, FAQs",
+    "description": "getServerSideProps is a Next.js function for server-side rendering that fetches data on each request. Here's what you need to know:",
+    "link": "#"
+  },
+  {
+    "id": 6,
+    "category": "Versus Articles",
+    "title": "Subdomain vs. Subdirectory vs. ccTLD for SEO",
+    "description": "Choosing the right URL structure for your multilingual website can make or break your SEO. Here's what you need to know:",
+    "link": "#"
+  },
+  {
+    "id": 7,
+    "category": "Roundups",
+    "title": "10 Proven Cinema Promotion Tactics for 2024",
+    "description": "Want to sell more tickets and pack your theater? Here are 10 effective cinema promotion strategies for 2024:",
+    "link": "#"
+  },
+  {
+    "id": 8,
+    "category": "Ultimate Guides",
+    "title": "Next.js 14 Project Structure: Best Practices",
+    "description": "Setting up a well-structured Next.js 14 project is crucial for maintainability, performance, and scalability. This guide covers:",
+    "link": "#"
+  }
+]
+

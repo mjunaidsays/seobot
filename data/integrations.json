@@ -1,0 +1,75 @@
+[
+  {
+    "id": 1,
+    "name": "Unicorn Platform",
+    "icon": "unicorn",
+    "badge": "Unicorn Platform"
+  },
+  {
+    "id": 2,
+    "name": "Webflow",
+    "icon": "webflow",
+    "badge": "Ui&ux ready"
+  },
+  {
+    "id": 3,
+    "name": "Ghost",
+    "icon": "ghost",
+    "badge": "100% no code"
+  },
+  {
+    "id": 4,
+    "name": "WordPress",
+    "icon": "wordpress",
+    "badge": ""
+  },
+  {
+    "id": 5,
+    "name": "Framer",
+    "icon": "framer",
+    "badge": ""
+  },
+  {
+    "id": 6,
+    "name": "WIX",
+    "icon": "wix",
+    "badge": ""
+  },
+  {
+    "id": 7,
+    "name": "Shopify",
+    "icon": "shopify",
+    "badge": ""
+  },
+  {
+    "id": 8,
+    "name": "Notion",
+    "icon": "notion",
+    "badge": ""
+  },
+  {
+    "id": 9,
+    "name": "HubSpot",
+    "icon": "hubspot",
+    "badge": ""
+  },
+  {
+    "id": 10,
+    "name": "Next.js",
+    "icon": "nextjs",
+    "badge": ""
+  },
+  {
+    "id": 11,
+    "name": "Webhooks",
+    "icon": "webhooks",
+    "badge": ""
+  },
+  {
+    "id": 12,
+    "name": "REST API",
+    "icon": "api",
+    "badge": ""
+  }
+]
+

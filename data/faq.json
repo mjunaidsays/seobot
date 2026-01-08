@@ -1,0 +1,83 @@
+[
+  {
+    "id": 1,
+    "question": "Is SEObot an AI SEO agent?",
+    "answer": "Yes, SEObot is an AI-powered SEO agent that automates SEO tasks, including keyword research, content optimization, internal linking, backlink building, etc. It's designed to streamline your SEO workflow through intelligent automation."
+  },
+  {
+    "id": 2,
+    "question": "Can it make the individual blog pages automatically?",
+    "answer": "Everything is automated. If you want you can assist it, give it ideas, or take control, but it runs 100% autopilot by default."
+  },
+  {
+    "id": 3,
+    "question": "Does it work in other languages than English?",
+    "answer": "Yes, it can create quality SEO articles in many modern languages. We currently support 50 languages and are always adding more."
+  },
+  {
+    "id": 4,
+    "question": "How do I get access to the SEObot platform?",
+    "answer": "You can easily onboard your website yourself at app.seobotai.com"
+  },
+  {
+    "id": 5,
+    "question": "Can I moderate articles?",
+    "answer": "Yes, you can always ask SEObot to email you a list of the articles to accept/decline. In this case, you're in complete control."
+  },
+  {
+    "id": 6,
+    "question": "How good are the results?",
+    "answer": "Our article quality varies compared to human writers - sometimes matching average human quality, sometimes falling short, and occasionally exceeding it. We continuously improve to consistently meet or exceed human-level writing across all topics, though results currently depend on your specific audience, subject matter, and requirements."
+  },
+  {
+    "id": 7,
+    "question": "What integrations and CMS do you support?",
+    "answer": "CMS: Framer, Ghost, HubSpot, Notion, Shopify, Unicorn Platform, Webflow, Wix, WordPress. Integrations: REST API, Webhooks, NextJS, Zappier, Make, etc."
+  },
+  {
+    "id": 8,
+    "question": "Can I edit articles?",
+    "answer": "Yes, you can edit articles inside SEObot before publishing them on your CMS."
+  },
+  {
+    "id": 9,
+    "question": "How does SEObot's internal linking automation work?",
+    "answer": "SEObot automatically scans your content to identify relevant anchor text opportunities and intelligently links to your most important pages. As your content library grows, it continuously updates and optimizes these connections without requiring manual link audits."
+  },
+  {
+    "id": 10,
+    "question": "Does SEObot support programmatic SEO?",
+    "answer": "Yes. SEObot builds data-driven templates, collects data, and publishes at scale via your CMS."
+  },
+  {
+    "id": 11,
+    "question": "Does SEObot generate News articles?",
+    "answer": "Yes, SEObot has an AI news article generator module. It automatically creates news articles by finding relevant stories, writing headlines and drafts, then publishing directly to your CMS."
+  },
+  {
+    "id": 12,
+    "question": "Does SEObot generate SEO tools?",
+    "answer": "Yes, SEObot creates the best custom SEO tools on the market to help drive organic traffic to your website. These small SEO tools are designed as valuable resources that attract visitors and encourage engagement."
+  },
+  {
+    "id": 13,
+    "question": "Can SEObot create articles from videos?",
+    "answer": "Yes, SEObot can transform YouTube videos into SEO-optimized articles. Simply provide the YouTube video URL, and our AI will analyze the content to create comprehensive, search-engine-friendly articles."
+  },
+  {
+    "id": 14,
+    "question": "Can SEObot build backlinks with AI?",
+    "answer": "Yes, SEObot uses AI to build high-quality backlinks for your website. Our AI-powered system automatically searches for relevant backlink opportunities by analyzing your niche, competitors, and industry-specific websites."
+  },
+  {
+    "id": 15,
+    "question": "Can I get a refund?",
+    "answer": "We offer a full refund on the $49 plan if you contact us after the first article and aren't satisfied with the results. If you're unsure if you want to use it, always start with the smallest plan to test it first."
+  },
+  {
+    "id": 16,
+    "question": "Does SeoBotAI work for crypto and adult websites?",
+    "answer": "Yes for crypto, with no special limitations. Adult / NSFW content is more restricted. SEOBot uses LLM (large language models) that have built-in safety filters."
+  }
+]
+
