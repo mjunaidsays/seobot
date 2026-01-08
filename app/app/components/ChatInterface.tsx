@@ -27,7 +27,6 @@ export default function ChatInterface({ messages, onSendMessage, isTyping = fals
       <div
         ref={messagesContainerRef}
         className="flex-1 overflow-y-auto p-6 md:p-8 space-y-2"
-        style={{ maxHeight: 'calc(100vh - 400px)', minHeight: '300px' }}
       >
         {messages.map((message) => (
           <ChatMessage key={message.id} message={message} />

@@ -2,84 +2,197 @@
 
 import { useState, useCallback } from 'react'
 import { Message } from '@/app/app/components/ChatMessage'
+import { WebsiteData } from '@/app/app/types/website'
+import { apiClient } from '@/lib/api'
+import { mapAnalyzeResponseToWebsiteData } from '@/lib/mappers/websiteMapper'
+import { AnalyzeResponse, PlanItem, ResearchData, GenerateRequest } from '@/lib/types/api'
 
-// Mock responses for different keywords/patterns
-const getMockResponse = (userMessage: string): string => {
-  const lowerMessage = userMessage.toLowerCase()
+// URL detection regex pattern
+const URL_PATTERN = /(https?:\/\/)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/gi
 
-  // Greeting responses
-  if (lowerMessage.match(/\b(hi|hello|hey|greetings)\b/)) {
-    return "Hello! 👋 I'm excited to help you boost your website's SEO. What's your website URL?"
+// Extract URL from message
+function extractURL(message: string): string | null {
+  const matches = message.match(URL_PATTERN)
+  if (matches && matches.length > 0) {
+    let url = matches[0]
+    // Ensure URL has protocol
+    if (!url.startsWith('http://') && !url.startsWith('https://')) {
+      url = 'https://' + url
+    }
+    return url
   }
+  return null
+}
 
-  // SEO-related questions
-  if (lowerMessage.includes('seo') || lowerMessage.includes('traffic')) {
-    return "Great question! I can help you increase your organic traffic through AI-powered SEO strategies. I'll create optimized content, handle keyword research, and build internal links automatically. Would you like to tell me about your website?"
+// Extract domain from URL
+function extractDomain(url: string): string {
+  try {
+    let domain = url.replace(/^https?:\/\//, '')
+    domain = domain.replace(/^www\./, '')
+    domain = domain.split('/')[0]
+    domain = domain.split(':')[0]
+    return domain
+  } catch {
+    return url
   }
+}
 
-  // Website/URL mentions
-  if (lowerMessage.includes('website') || lowerMessage.includes('url') || lowerMessage.includes('http') || lowerMessage.includes('www')) {
-    return "Perfect! I'll analyze your website and create a comprehensive SEO strategy. I can generate high-quality articles, optimize keywords, and handle internal linking. In just a few weeks, you should start seeing increased organic traffic!"
-  }
-
-  // Pricing questions
-  if (lowerMessage.includes('price') || lowerMessage.includes('cost') || lowerMessage.includes('pay')) {
-    return "Our plans start at just $49/month! For that, you get fully automated SEO with AI-generated articles, keyword research, content planning, and automatic publishing. It's an incredible ROI for busy founders."
-  }
-
-  // How it works
-  if (lowerMessage.includes('how') && (lowerMessage.includes('work') || lowerMessage.includes('do'))) {
-    return "Here's how I work: 1) You provide your website URL, 2) I analyze your site, audience, and keywords, 3) I create a content plan, 4) I start producing SEO-optimized articles every week, 5) I handle internal linking automatically. You can approve/decline articles or let me run on autopilot!"
-  }
-
-  // Languages
-  if (lowerMessage.includes('language')) {
-    return "I support 50+ languages! Including English, Spanish, French, German, Chinese, Japanese, Arabic, and many more. I can create SEO content in any of these languages while maintaining quality and cultural relevance."
-  }
-
-  // Help/guidance
-  if (lowerMessage.includes('help') || lowerMessage.includes('assist')) {
-    return "I'm here to help! I can answer questions about SEO, explain how I work, discuss pricing, or get started with your website right away. What would you like to know?"
-  }
-
-  // Thanks
-  if (lowerMessage.match(/\b(thank|thanks|thx)\b/)) {
-    return "You're welcome! Feel free to ask me anything else about SEO or how I can help grow your website's traffic. 😊"
-  }
-
-  // Default response
-  const defaultResponses = [
-    "That's interesting! Tell me more about your website and I'll help you create an SEO strategy.",
-    "I understand. Could you share your website URL so I can provide specific recommendations?",
-    "Great! I'm here to help boost your organic traffic. What aspect of SEO are you most interested in?",
-    "I'd love to help with that! Let me know your website URL and we can get started.",
-  ]
-  
-  return defaultResponses[Math.floor(Math.random() * defaultResponses.length)]
+export interface GeneratedArticle {
+  title: string
+  article: string
+  keywords: string[]
+  word_count: number
 }
 
 export function useChat() {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
-      type: 'system',
+      type: 'bot',
       content: "Hi there! I'm SEObot, your AI SEO assistant.",
       timestamp: new Date(),
     },
     {
       id: '2',
-      type: 'system',
+      type: 'bot',
       content: "I can help increase 🚀 your website's organic traffic. No manual work required from you!",
       timestamp: new Date(),
     },
     {
       id: '3',
-      type: 'system',
-      content: "Ready to start? Tell me about your website!",
+      type: 'bot',
+      content: "Ready to start? Enter your website URL to begin!",
       timestamp: new Date(),
     },
   ])
   const [isTyping, setIsTyping] = useState(false)
+  const [websiteUrl, setWebsiteUrl] = useState<string | null>(null)
+  const [isAnalyzing, setIsAnalyzing] = useState(false)
+  const [analysisComplete, setAnalysisComplete] = useState(false)
+  const [websiteData, setWebsiteData] = useState<WebsiteData | null>(null)
+  const [sessionId, setSessionId] = useState<string | null>(null)
+  const [researchData, setResearchData] = useState<ResearchData | null>(null)
+  const [planItems, setPlanItems] = useState<PlanItem[]>([])
+  const [generatedArticles, setGeneratedArticles] = useState<GeneratedArticle[]>([])
+  const [isGenerating, setIsGenerating] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  const addMessage = useCallback((content: string, type: 'user' | 'bot' | 'system' = 'bot') => {
+    const message: Message = {
+      id: Date.now().toString() + Math.random(),
+      type,
+      content,
+      timestamp: new Date(),
+    }
+    setMessages((prev) => [...prev, message])
+  }, [])
+
+  const startWebsiteAnalysis = useCallback(async (url: string) => {
+    setIsAnalyzing(true)
+    setWebsiteUrl(url)
+    setError(null)
+
+    // Add analysis start message
+    addMessage(`seobot: ${extractDomain(url)} is on board`)
+
+    try {
+      // Call analyze endpoint
+      const response: AnalyzeResponse = await apiClient.analyzeWebsite(url)
+
+      // Store session_id, research_data, and plan
+      setSessionId(response.session_id)
+      setResearchData(response.research_data)
+      setPlanItems(response.plan)
+
+      // Map response to WebsiteData format
+      const mappedData = mapAnalyzeResponseToWebsiteData(response, url)
+      setWebsiteData(mappedData)
+
+      setIsAnalyzing(false)
+      setAnalysisComplete(true)
+      setIsTyping(false)
+
+      // Add analysis complete messages with delays
+      const addMessageWithDelay = (messageContent: string, delay: number) => {
+        setTimeout(() => {
+          addMessage(messageContent)
+        }, delay)
+      }
+
+      addMessageWithDelay(`seobot: Ok, I've gone through your home and about pages to get a feel for your site`, 0)
+      addMessageWithDelay(`seobot: ${mappedData.about}`, 500)
+      addMessageWithDelay(`seobot: ${mappedData.blogFocus || 'For blog content, you\'d want to focus on topics that align with your website\'s purpose and audience.'}`, 1000)
+      addMessageWithDelay(`seobot: Your headlines are ready`, 1500)
+      addMessageWithDelay(`seobot: Review your website data and proposed headlines. Tell me in chat what to adjust, or click "Proceed" if satisfied`, 2000)
+    } catch (err) {
+      setIsAnalyzing(false)
+      setIsTyping(false)
+      const errorMessage = err instanceof Error ? err.message : 'Failed to analyze website'
+      setError(errorMessage)
+      addMessage(`seobot: Error - ${errorMessage}. Please try again.`)
+    }
+  }, [addMessage])
+
+  const handleProceed = useCallback(async () => {
+    if (!analysisComplete || !sessionId || !researchData || planItems.length === 0) {
+      addMessage('seobot: Error - Analysis data is missing. Please analyze your website first.')
+      return
+    }
+
+    setIsGenerating(true)
+    setError(null)
+    addMessage(`seobot: Starting implementation... I'll begin creating SEO-optimized content for your website.`)
+
+    const articles: GeneratedArticle[] = []
+
+    try {
+      // Generate article for each plan item
+      for (let i = 0; i < planItems.length; i++) {
+        const planItem = planItems[i]
+        
+        // Prepare generate request payload
+        const generateRequest: GenerateRequest = {
+          session_id: sessionId,
+          topic: planItem.title,
+          keywords: [...planItem.lsi_keywords, planItem.main_keyword],
+          word_count: planItem.word_count,
+          research_data: researchData,
+        }
+
+        addMessage(`seobot: Generating article ${i + 1} of ${planItems.length}: "${planItem.title}"...`)
+
+        try {
+          const response = await apiClient.generateArticle(generateRequest)
+          
+          articles.push({
+            title: planItem.title,
+            article: response.article,
+            keywords: generateRequest.keywords,
+            word_count: planItem.word_count,
+          })
+
+          addMessage(`seobot: ✓ Article "${planItem.title}" generated successfully`)
+        } catch (err) {
+          const errorMessage = err instanceof Error ? err.message : 'Failed to generate article'
+          addMessage(`seobot: ✗ Error generating "${planItem.title}": ${errorMessage}`)
+        }
+      }
+
+      setGeneratedArticles(articles)
+      
+      if (articles.length > 0) {
+        addMessage(`seobot: All articles generated successfully! ${articles.length} article(s) ready.`)
+      } else {
+        addMessage('seobot: No articles were generated. Please try again.')
+      }
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to generate articles'
+      setError(errorMessage)
+      addMessage(`seobot: Error - ${errorMessage}`)
+    } finally {
+      setIsGenerating(false)
+    }
+  }, [analysisComplete, sessionId, researchData, planItems, addMessage])
 
   const sendMessage = useCallback((content: string) => {
     // Add user message
@@ -91,29 +204,52 @@ export function useChat() {
     }
     
     setMessages((prev) => [...prev, userMessage])
+
+    // Check if message contains a URL
+    const detectedUrl = extractURL(content)
+    
+    if (detectedUrl && !analysisComplete && !isAnalyzing) {
+      // Start website analysis
+      setIsTyping(true)
+      startWebsiteAnalysis(detectedUrl)
+      return
+    }
+
+    // If analysis is complete, handle proceed command
+    if (analysisComplete && content.toLowerCase().includes('proceed')) {
+      handleProceed()
+      return
+    }
+
+    // For other messages after analysis, provide helpful responses
+    if (analysisComplete) {
+      setIsTyping(true)
+      setTimeout(() => {
+        addMessage("I've completed the analysis. Review the suggestions on the right, or click 'Proceed' to generate articles.")
+        setIsTyping(false)
+      }, 500)
+      return
+    }
+
+    // Before analysis, prompt for URL
     setIsTyping(true)
-
-    // Simulate bot typing delay (500-1500ms)
-    const typingDelay = 500 + Math.random() * 1000
-
     setTimeout(() => {
-      // Generate and add bot response
-      const botResponse: Message = {
-        id: (Date.now() + 1).toString(),
-        type: 'bot',
-        content: getMockResponse(content),
-        timestamp: new Date(),
-      }
-      
-      setMessages((prev) => [...prev, botResponse])
+      addMessage("Please enter your website URL to begin the analysis.")
       setIsTyping(false)
-    }, typingDelay)
-  }, [])
+    }, 500)
+  }, [isAnalyzing, analysisComplete, startWebsiteAnalysis, handleProceed, addMessage])
 
   return {
     messages,
     isTyping,
     sendMessage,
+    websiteUrl,
+    isAnalyzing,
+    analysisComplete,
+    websiteData,
+    handleProceed,
+    generatedArticles,
+    isGenerating,
+    error,
   }
 }
-
