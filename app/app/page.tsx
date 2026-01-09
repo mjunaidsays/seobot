@@ -37,14 +37,14 @@ export default function AppPage() {
   }
 
   return (
-    <div className="min-h-screen relative overflow-hidden bg-black">
+    <div className="h-screen relative overflow-hidden bg-black">
       {/* Starry Background */}
       <div className="absolute inset-0 opacity-50">
         <div className="stars-bg"></div>
       </div>
 
       {/* Main Content */}
-      <div className="relative z-10 min-h-screen flex flex-col">
+      <div className="relative z-10 h-screen flex flex-col overflow-hidden">
         <AnimatePresence mode="wait">
           {!analysisComplete ? (
             // Single centered chat (initial state)
@@ -79,74 +79,82 @@ export default function AppPage() {
               </motion.div>
             </motion.div>
           ) : (
-            // Two-panel layout (after analysis)
+            // Two-panel layout (after analysis) - wrapped in container box
             <motion.div
               key="two-panel"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.5 }}
-              className="flex-1 flex flex-col lg:flex-row h-screen"
+              className="flex-1 flex items-center justify-center p-4 md:p-8 overflow-hidden"
             >
-              {/* Left Panel - Chat Interface */}
-              <div className="flex-[2] flex flex-col border-r-0 lg:border-r border-gray-800">
-                <motion.div
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.5, delay: 0.2 }}
-                  className="flex-1 flex flex-col bg-gray-950"
-                >
-                  {/* Terminal Header */}
-                  <div className="bg-gray-900 px-4 py-3 flex items-center space-x-2 border-b border-gray-800 flex-shrink-0">
-                    <div className="flex space-x-2">
-                      <div className="w-3 h-3 rounded-full bg-red-500"></div>
-                      <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
-                      <div className="w-3 h-3 rounded-full bg-green-500"></div>
-                    </div>
-                    <span className="text-primary-green font-mono text-sm ml-4">
-                      seobot {websiteUrl ? getDomainFromUrl(websiteUrl) : ''}
-                    </span>
+              <motion.div
+                className="w-full max-w-[95vw] bg-gray-950 border border-gray-800 rounded-xl shadow-2xl overflow-hidden flex flex-col"
+                style={{ height: '85vh', maxHeight: '85vh' }}
+              >
+                {/* Terminal Header */}
+                <div className="bg-gray-900 px-4 py-3 flex items-center space-x-2 border-b border-gray-800 flex-shrink-0">
+                  <div className="flex space-x-2">
+                    <div className="w-3 h-3 rounded-full bg-red-500"></div>
+                    <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
+                    <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                  </div>
+                  <span className="text-primary-green font-mono text-sm ml-4">
+                    seobot {websiteUrl ? getDomainFromUrl(websiteUrl) : ''}
+                  </span>
+                </div>
+
+                {/* Two-panel layout */}
+                <div className="flex-1 flex flex-col lg:flex-row overflow-hidden min-h-0">
+                  {/* Left Panel - Chat Interface */}
+                  <div className="flex-[2] flex flex-col border-r-0 lg:border-r border-gray-800 overflow-hidden">
+                    <motion.div
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ duration: 0.5, delay: 0.2 }}
+                      className="flex-1 flex flex-col bg-gray-950 overflow-hidden"
+                    >
+                      {/* Chat Interface */}
+                      <div className="flex-1 overflow-hidden">
+                        <ChatInterface
+                          messages={messages}
+                          onSendMessage={sendMessage}
+                          isTyping={isTyping}
+                        />
+                      </div>
+                    </motion.div>
                   </div>
 
-                  {/* Chat Interface */}
-                  <div className="flex-1 overflow-hidden">
-                    <ChatInterface
-                      messages={messages}
-                      onSendMessage={sendMessage}
-                      isTyping={isTyping}
-                    />
+                  {/* Right Panel - Website Data or Generated Articles */}
+                  <div className="flex-1 flex flex-col border-t lg:border-t-0 border-gray-800 overflow-hidden">
+                    {generatedArticles.length > 0 ? (
+                      // Show generated articles
+                      <motion.div
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ duration: 0.5 }}
+                        className="h-full bg-gray-950 overflow-y-auto p-6"
+                      >
+                        <div className="mb-6">
+                          <h2 className="text-2xl font-bold text-white mb-2">Generated Articles</h2>
+                          <p className="text-gray-400 text-sm">
+                            {generatedArticles.length} article{generatedArticles.length !== 1 ? 's' : ''} generated successfully
+                          </p>
+                        </div>
+                        {generatedArticles.map((article, index) => (
+                          <GeneratedArticle key={index} article={article} index={index} />
+                        ))}
+                      </motion.div>
+                    ) : (
+                      // Show website data panel
+                      <WebsiteDataPanel
+                        websiteData={websiteData}
+                        onProceed={handleProceed}
+                      />
+                    )}
                   </div>
-                </motion.div>
-              </div>
-
-              {/* Right Panel - Website Data or Generated Articles */}
-              <div className="flex-1 flex flex-col border-t lg:border-t-0 border-gray-800">
-                {generatedArticles.length > 0 ? (
-                  // Show generated articles
-                  <motion.div
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ duration: 0.5 }}
-                    className="h-full bg-gray-950 overflow-y-auto p-6"
-                  >
-                    <div className="mb-6">
-                      <h2 className="text-2xl font-bold text-white mb-2">Generated Articles</h2>
-                      <p className="text-gray-400 text-sm">
-                        {generatedArticles.length} article{generatedArticles.length !== 1 ? 's' : ''} generated successfully
-                      </p>
-                    </div>
-                    {generatedArticles.map((article, index) => (
-                      <GeneratedArticle key={index} article={article} index={index} />
-                    ))}
-                  </motion.div>
-                ) : (
-                  // Show website data panel
-                  <WebsiteDataPanel
-                    websiteData={websiteData}
-                    onProceed={handleProceed}
-                  />
-                )}
-              </div>
+                </div>
+              </motion.div>
             </motion.div>
           )}
         </AnimatePresence>
@@ -169,7 +177,7 @@ export default function AppPage() {
         {!analysisComplete && (
           <div className="relative z-20 pb-8">
             {/* Autopilot Toggle */}
-            <div className="flex justify-start px-8 mb-8">
+            {/* <div className="flex justify-start px-8 mb-8">
               <div className="flex items-center space-x-3 bg-gray-900/80 border border-gray-800 rounded-full px-4 py-2">
                 <button
                   onClick={() => setAutopilot(!autopilot)}
@@ -196,9 +204,9 @@ export default function AppPage() {
                   </svg>
                 </button>
               </div>
-            </div>
+            </div> */}
 
-            {/* Partner Links */}
+            {/* Partner Links
             <div className="flex items-center justify-center space-x-4 px-4">
               <Link
                 href="https://seobotai.com/?ref=seobot"
@@ -236,12 +244,12 @@ export default function AppPage() {
                   <span className="text-2xl">⚡</span>
                 </div>
               </Link>
-            </div>
+            </div> */}
           </div>
         )}
       </div>
 
-      {/* Chat Widget Placeholder */}
+      {/* Chat Widget Placeholder
       <div className="fixed bottom-6 right-6 z-50">
         <button className="bg-blue-500 hover:bg-blue-600 text-white rounded-full p-4 shadow-lg transition-all duration-200 hover:scale-110">
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -253,7 +261,7 @@ export default function AppPage() {
             />
           </svg>
         </button>
-      </div>
+      </div> */}
 
       <style jsx>{`
         .stars-bg {
