@@ -43,6 +43,17 @@ export interface GenerateResponse {
   article: string
 }
 
+export interface ChatRequest {
+  session_id: string
+  message: string
+}
+
+export interface ChatResponse {
+  session_id: string
+  answer: string
+  plan: PlanItem[]
+}
+
 export interface ApiError {
   detail?: string
   message?: string

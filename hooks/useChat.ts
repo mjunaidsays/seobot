@@ -2,10 +2,10 @@
 
 import { useState, useCallback } from 'react'
 import { Message } from '@/app/app/components/ChatMessage'
-import { WebsiteData } from '@/app/app/types/website'
+import { WebsiteData, Headline } from '@/app/app/types/website'
 import { apiClient } from '@/lib/api'
 import { mapAnalyzeResponseToWebsiteData } from '@/lib/mappers/websiteMapper'
-import { AnalyzeResponse, PlanItem, ResearchData, GenerateRequest } from '@/lib/types/api'
+import { AnalyzeResponse, PlanItem, ResearchData, GenerateRequest, ChatRequest, ChatResponse } from '@/lib/types/api'
 
 // URL detection regex pattern
 const URL_PATTERN = /(https?:\/\/)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/gi
@@ -35,6 +35,34 @@ function extractDomain(url: string): string {
   } catch {
     return url
   }
+}
+
+// Helper function to calculate difficulty based on word_count
+function calculateDifficulty(wordCount: number): 'low' | 'med' | 'high' {
+  if (wordCount < 1500) {
+    return 'low'
+  } else if (wordCount <= 3000) {
+    return 'med'
+  } else {
+    return 'high'
+  }
+}
+
+// Helper function to format word count as volume string
+function formatVolume(wordCount: number): string {
+  if (wordCount >= 1000) {
+    return `${(wordCount / 1000).toFixed(1)}k words`
+  }
+  return `${wordCount} words`
+}
+
+// Helper function to update websiteData headlines from planItems
+function updateHeadlinesFromPlan(planItems: PlanItem[]): Headline[] {
+  return planItems.map((item) => ({
+    title: item.title,
+    difficulty: calculateDifficulty(item.word_count),
+    volume: formatVolume(item.word_count),
+  }))
 }
 
 export interface GeneratedArticle {
@@ -221,13 +249,50 @@ export function useChat() {
       return
     }
 
-    // For other messages after analysis, provide helpful responses
+    // For other messages after analysis, call chat endpoint
     if (analysisComplete) {
+      if (!sessionId) {
+        addMessage('seobot: Error - Session ID is missing. Please analyze your website first.')
+        return
+      }
+
       setIsTyping(true)
-      setTimeout(() => {
-        addMessage("I've completed the analysis. Review the suggestions on the right, or click 'Proceed' to generate articles.")
-        setIsTyping(false)
-      }, 500)
+      setError(null)
+
+      // Call chat endpoint
+      const handleChatMessage = async () => {
+        try {
+          const chatRequest: ChatRequest = {
+            session_id: sessionId,
+            message: content,
+          }
+
+          const chatResponse: ChatResponse = await apiClient.chat(chatRequest)
+
+          // Update planItems with new plan from response
+          setPlanItems(chatResponse.plan)
+
+          // Update websiteData headlines if websiteData exists
+          if (websiteData) {
+            const updatedHeadlines = updateHeadlinesFromPlan(chatResponse.plan)
+            setWebsiteData({
+              ...websiteData,
+              headlines: updatedHeadlines,
+            })
+          }
+
+          // Display bot's answer
+          addMessage(`seobot: ${chatResponse.answer}`)
+        } catch (err) {
+          const errorMessage = err instanceof Error ? err.message : 'Failed to process chat message'
+          setError(errorMessage)
+          addMessage(`seobot: Error - ${errorMessage}. Please try again.`)
+        } finally {
+          setIsTyping(false)
+        }
+      }
+
+      handleChatMessage()
       return
     }
 
@@ -237,7 +302,7 @@ export function useChat() {
       addMessage("Please enter your website URL to begin the analysis.")
       setIsTyping(false)
     }, 500)
-  }, [isAnalyzing, analysisComplete, startWebsiteAnalysis, handleProceed, addMessage])
+  }, [isAnalyzing, analysisComplete, sessionId, websiteData, startWebsiteAnalysis, handleProceed, addMessage])
 
   return {
     messages,

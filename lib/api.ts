@@ -6,6 +6,8 @@ import {
   AnalyzeResponse,
   GenerateRequest,
   GenerateResponse,
+  ChatRequest,
+  ChatResponse,
   ApiError,
 } from './types/api'
 
@@ -86,6 +88,18 @@ class ApiClient {
    */
   async generateArticle(payload: GenerateRequest): Promise<GenerateResponse> {
     return this.request<GenerateResponse>('/generate', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    })
+  }
+
+  /**
+   * Chat with the bot to refine analysis
+   * @param payload - Chat request with session_id and message
+   * @returns Chat response with answer and updated plan
+   */
+  async chat(payload: ChatRequest): Promise<ChatResponse> {
+    return this.request<ChatResponse>('/chat', {
       method: 'POST',
       body: JSON.stringify(payload),
     })
