@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
+import { Group, Panel, Separator } from 'react-resizable-panels'
 import ChatInterface from './components/ChatInterface'
 import WebsiteDataPanel from './components/WebsiteDataPanel'
 import GeneratedArticle from './components/GeneratedArticle'
@@ -89,7 +90,7 @@ export default function AppPage() {
               className="flex-1 flex items-center justify-center p-4 md:p-8 overflow-hidden"
             >
               <motion.div
-                className="w-full max-w-[95vw] bg-gray-950 border border-gray-800 rounded-xl shadow-2xl overflow-hidden flex flex-col"
+                className="w-full max-w-[95vw] bg-gray-950 border border-gray-800 rounded-xl shadow-2xl overflow-hidden flex flex-col relative"
                 style={{ height: '85vh', maxHeight: '85vh' }}
               >
                 {/* Terminal Header */}
@@ -104,15 +105,15 @@ export default function AppPage() {
                   </span>
                 </div>
 
-                {/* Two-panel layout */}
-                <div className="flex-1 flex flex-col lg:flex-row overflow-hidden min-h-0">
+                {/* Two-panel layout with resizable panels */}
+                <Group orientation="horizontal" className="flex-1 overflow-hidden min-h-0">
                   {/* Left Panel - Chat Interface */}
-                  <div className="flex-[2] flex flex-col border-r-0 lg:border-r border-gray-800 overflow-hidden">
+                  <Panel defaultSize={60} minSize={30} className="flex flex-col overflow-hidden">
                     <motion.div
                       initial={{ opacity: 0, x: -20 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ duration: 0.5, delay: 0.2 }}
-                      className="flex-1 flex flex-col bg-gray-950 overflow-hidden"
+                      className="flex-1 flex flex-col bg-gray-950 overflow-hidden h-full"
                     >
                       {/* Chat Interface */}
                       <div className="flex-1 overflow-hidden">
@@ -123,10 +124,17 @@ export default function AppPage() {
                         />
                       </div>
                     </motion.div>
-                  </div>
+                  </Panel>
+
+                  {/* Resize Handle */}
+                  <Separator className="w-1 bg-gray-800 hover:bg-primary-green/50 transition-colors cursor-col-resize group relative">
+                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                      <div className="w-1 h-8 bg-primary-green rounded-full"></div>
+                    </div>
+                  </Separator>
 
                   {/* Right Panel - Website Data or Generated Articles */}
-                  <div className="flex-1 flex flex-col border-t lg:border-t-0 border-gray-800 overflow-hidden">
+                  <Panel defaultSize={40} minSize={30} className="flex flex-col overflow-hidden">
                     {generatedArticles.length > 0 ? (
                       // Show generated articles
                       <motion.div
@@ -152,8 +160,8 @@ export default function AppPage() {
                         onProceed={handleProceed}
                       />
                     )}
-                  </div>
-                </div>
+                  </Panel>
+                </Group>
               </motion.div>
             </motion.div>
           )}
